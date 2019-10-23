@@ -91,7 +91,7 @@ source "${THIS_FOLDER}/functions/govc.sh" \
 
 baseVMIPath=$(buildIpath "${vcenter_datacenter}" "${vm_folder}" "${base_vm_name}")
 
-autounattendPath="$(find "${ROOT_FOLDER}/autounattend" -iname "autounattend.xml" 2>/dev/null | head -n1)"
+autounattendPath="$(find "${ROOT_FOLDER}/autounattend" -iname "*.xml" 2>/dev/null | head -n1)"
 [[ ! -f "${autounattendPath}" ]] && (writeErr "autounattend.xml not found in ${ROOT_FOLDER}/autounattend" && exit 1)
 
 isoPath="$(find "${ROOT_FOLDER}/iso" -iname *.iso 2>/dev/null | head -n1)"
