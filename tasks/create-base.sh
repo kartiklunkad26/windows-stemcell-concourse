@@ -173,18 +173,18 @@ fi
 
 if [ "${uploadIso}" -ne "0" ]; then
 	echo "Uploading ${finalIsoFilePath} to ${isoDsPath}"
-#	if ! uploadToDatastore "${finalIsoFilePath}" "${iso_datastore}" "${isoDsPath}"; then
-#		writeErr "uploading iso to datastore"
-#		exit 1
-#	else
-#		sha256sum "${finalIsoFilePath}" > "${isoShaFilePath}"
-#		if ! uploadToDatastore "${isoShaFilePath}" "${iso_datastore}" "${isoShaDsPath}"; then
-#			writeErr "uploading iso sha256 to datastore"
-#			exit 1
-#		else
-#			echo "Done"
-#		fi
-#	fi
+	if ! uploadToDatastore "${finalIsoFilePath}" "${iso_datastore}" "${isoDsPath}"; then
+		writeErr "uploading iso to datastore"
+		exit 1
+	else
+		sha256sum "${finalIsoFilePath}" > "${isoShaFilePath}"
+		if ! uploadToDatastore "${isoShaFilePath}" "${iso_datastore}" "${isoShaDsPath}"; then
+			writeErr "uploading iso sha256 to datastore"
+			exit 1
+		else
+			echo "Done"
+		fi
+	fi
 fi
 
 echo "--------------------------------------------------------"
