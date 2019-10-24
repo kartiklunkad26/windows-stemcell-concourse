@@ -345,6 +345,30 @@ function validateAndPowerOff(){
 # Arguments:
 #		
 #######################################
+function downloadFromDatastore(){
+	local file_path="${1}"
+	local datastore_name="${2}"
+	local saveas_file_path="${3}"	
+
+	if ! info=$(${govc} datastore.info -json ${datastore_name}); then
+		writeErr "Could not get datastore info at ${datastore_name}"
+		return 1
+	fi
+
+	if ! ${govc} datastore.download -ds=${datastore_name} ${file_path} ${saveas_file_path}; then
+		writeErr "Could not download file as ${saveas_file_path} from datastore ${datastore_name}"
+		return 1
+	fi
+
+	return 0
+}
+
+######################################
+# Description:
+# 	
+# Arguments:
+#		
+#######################################
 function uploadToDatastore(){
 	local file_path="${1}"
 	local datastore_name="${2}"

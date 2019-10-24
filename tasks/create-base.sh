@@ -157,11 +157,28 @@ fi
 echo "--------------------------------------------------------"
 echo "Upload ISO"
 echo "--------------------------------------------------------"
-if ! uploadToDatastore "${finalIsoFilePath}" "${iso_datastore}" "${iso_folder}/${base_vm_name}.iso"; then
-  writeErr "uploading iso to datastore"
-  exit 1
+uploadIso=1
+if ! downloadFromDatastore "${iso_folder}/${base_vm_name}.sha256" "${iso_datastore}" "${base_vm_name}.sha256"; then
+	echo "ISO checksum not downloaded from ${iso_datastore}"
 else
-	echo "Done"
+	shasum -a 256 -c "${base_vm_name}.sha256"
+	uploadIso=$?
+fi
+
+if [ "${uploadIso}" -ne "0" ]; then
+	echo "Uploading ${finalIsoFilePath} to ${iso_folder}/${base_vm_name}.iso"
+#	if ! uploadToDatastore "${finalIsoFilePath}" "${iso_datastore}" "${iso_folder}/${base_vm_name}.iso"; then
+#		writeErr "uploading iso to datastore"
+#		exit 1
+#	else
+#		shasum -a 256 "${finalIsoFilePath}" > "${base_vm_name}.sha256"
+#		if ! uploadToDatastore "${base_vm_name}.sha256" "${iso_datastore}" "${iso_folder}/${base_vm_name}.sha256"; then
+#			writeErr "uploading iso sha256 to datastore"
+#			exit 1
+#		else
+#			echo "Done"
+#		fi
+#	fi
 fi
 
 echo "--------------------------------------------------------"
