@@ -161,10 +161,12 @@ uploadIso=1
 isoShaFilePath="${finalIsoFolder}/${base_vm_name}.sha256"
 isoShaDsPath="${iso_folder}/${base_vm_name}.sha256"
 isoDsPath="${iso_folder}/${base_vm_name}.iso"
+
 isoDir=$(dirname "${isoPath}")
+isoFileName=$(basename "${isoPath}")
 
 if ! downloadFromDatastore "${isoShaDsPath}" "${iso_datastore}" "${isoShaFilePath}"; then
-	echo "ISO checksum not downloaded from ${iso_datastore}"
+	echo "Skipping ISO sha256 check, forcing upload"
 else
 	pushd "${isoDir}"
 	sha256sum -c "${isoShaFilePath}"
@@ -178,7 +180,9 @@ if [ "${uploadIso}" -ne "0" ]; then
 		writeErr "uploading iso to datastore"
 		exit 1
 	else
-		sha256sum "${isoPath}" > "${isoShaFilePath}"
+		pushd "${isoDir}"
+		sha256sum "${isoFileName}" > "${isoShaFilePath}"
+		popd
 		if ! uploadToDatastore "${isoShaFilePath}" "${iso_datastore}" "${isoShaDsPath}"; then
 			writeErr "uploading iso sha256 to datastore"
 			exit 1
