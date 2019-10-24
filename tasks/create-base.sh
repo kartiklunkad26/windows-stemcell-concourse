@@ -124,7 +124,7 @@ echo "Build ISO"
 echo "--------------------------------------------------------"
 extractISOPath="/mnt/formatIso"
 finalIsoFolder="/tmp"
-finalFileName="final-iso.iso"
+finalFileName="${base_vm_name}.iso"
 
 apt-get update && apt-get -y install genisoimage
 mkisofs -version
@@ -146,8 +146,8 @@ if ! mkisofs -quiet \
   -input-charset UTF-8 \
   -D -N -R -joliet -relaxed-filenames \
   -V Windows \
-  -o ${finalIsoFilePath} \
-	${extractISOPath}; then
+  -o "${finalIsoFilePath}" \
+	"${extractISOPath}"; then
   writeErr "creating new ISO"
   exit 1
 else
@@ -158,21 +158,27 @@ echo "--------------------------------------------------------"
 echo "Upload ISO"
 echo "--------------------------------------------------------"
 uploadIso=1
-if ! downloadFromDatastore "${iso_folder}/${base_vm_name}.sha256" "${iso_datastore}" "${base_vm_name}.sha256"; then
+isoShaFilePath="${finalIsoFolder}/${base_vm_name}.sha256"
+isoShaDsPath="${iso_folder}/${base_vm_name}.sha256"
+isoDsPath="${iso_folder}/${base_vm_name}.iso"
+
+if ! downloadFromDatastore "${isoShaDsPath}" "${iso_datastore}" "${isoShaFilePath}"; then
 	echo "ISO checksum not downloaded from ${iso_datastore}"
 else
-	shasum -a 256 -c "${base_vm_name}.sha256"
+	pushd "${finalIsoFolder}"
+	sha256sum -c "${isoShaFilePath}"
 	uploadIso=$?
+	popd
 fi
 
 if [ "${uploadIso}" -ne "0" ]; then
-	echo "Uploading ${finalIsoFilePath} to ${iso_folder}/${base_vm_name}.iso"
-#	if ! uploadToDatastore "${finalIsoFilePath}" "${iso_datastore}" "${iso_folder}/${base_vm_name}.iso"; then
+	echo "Uploading ${finalIsoFilePath} to ${isoDsPath}"
+#	if ! uploadToDatastore "${finalIsoFilePath}" "${iso_datastore}" "${isoDsPath}"; then
 #		writeErr "uploading iso to datastore"
 #		exit 1
 #	else
-#		shasum -a 256 "${finalIsoFilePath}" > "${base_vm_name}.sha256"
-#		if ! uploadToDatastore "${base_vm_name}.sha256" "${iso_datastore}" "${iso_folder}/${base_vm_name}.sha256"; then
+#		sha256sum "${finalIsoFilePath}" > "${isoShaFilePath}"
+#		if ! uploadToDatastore "${isoShaFilePath}" "${iso_datastore}" "${isoShaDsPath}"; then
 #			writeErr "uploading iso sha256 to datastore"
 #			exit 1
 #		else
